@@ -1,0 +1,27 @@
+<article>
+    <section class="controls">
+        <p class="info">This process relies partially on randomness. If there are small errors in identifying where walls should go, you may have some success by regenerating 2-3 times.</p>
+        <div class="form-group">
+            <label for="k">K-Means Clusters</label>
+            <range-picker type="number" name="k" class="form-control" value="{{k}}" min="2" max="12" step="1"></range-picker>
+            <p class="hint">The maximum number of expected regions with significantly different coloring.</p>
+        </div>
+        <div class="form-group">
+            <label for="threshold">Threshold</label>
+            <range-picker type="number" name="threshold" class="form-control" value="{{threshold}}" min="0" max="100" step="1"></range-picker>
+            <p class="hint">How much variation is expected in the map background.</p>
+        </div>
+        <div class="form-group">
+            <label for="internalWalls">Internal Walls</label>
+            <input type="checkbox" name="internalWalls" class="form-control" value="{{internalWalls}}" {{#if internalWalls}}checked{{/if}}></input>
+            <p class="hint">Whether we should try to infer internal walls (walls which are significantly thinner than a grid cell). Enabling this will likely add many extra walls.</p>
+        </div>
+        <div class="form-group">
+            <button type="button" data-action="generate">Generate</button>
+            <button type="button" data-action="apply">Apply</button>
+        </div>
+    </section>
+    <section class="preview">
+        <canvas id="preview" class="canvas" width="500" height="600"></canvas>
+    </section>
+</article>

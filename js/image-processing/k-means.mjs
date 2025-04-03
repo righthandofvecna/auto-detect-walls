@@ -4,7 +4,6 @@
  * @param {number} k - The number of clusters (regions) to create
  * @param {number} maxIterations - Maximum number of iterations to perform
  * @param {number} threshold - Convergence threshold (when centroids move less than this, stop)
- * @returns {Object} Object containing the segmented image data and cluster information
  */
 export function kMeansImageSegmentation(canvas, options={}) {
   const {
@@ -22,19 +21,8 @@ export function kMeansImageSegmentation(canvas, options={}) {
     pixels.push([data[i], data[i + 1], data[i + 2]]);
   }
   
-  // Initialize centroids randomly by picking random pixels
-  const centroids = [];
-  const used = new Set();
-  
-  for (let i = 0; i < k; i++) {
-    let idx;
-    do {
-      idx = Math.floor(Math.random() * pixels.length);
-    } while (used.has(idx));
-    
-    used.add(idx);
-    centroids.push([...pixels[idx]]);
-  }
+  // Initialize centroids using k-means++ method
+  const centroids = initializeCentroidsKMeansPP(pixels, k);
   
   // Array to store cluster assignments for each pixel
   let clusters = new Array(pixels.length).fill(0);
@@ -116,6 +104,48 @@ export function kMeansImageSegmentation(canvas, options={}) {
 
   ctx.clearRect(0, 0, width, height);
   ctx.putImageData(result, 0, 0);
+}
+
+/**
+ * Initialize centroids using the k-means++ algorithm
+ * @param {Array<Array<number>>} pixels - Array of pixel data as RGB vectors
+ * @param {number} k - Number of centroids to initialize
+ * @returns {Array<Array<number>>} Initialized centroids
+ */
+function initializeCentroidsKMeansPP(pixels, k) {
+  const centroids = [];
+  
+  // Choose the first centroid randomly
+  const firstIndex = Math.floor(Math.random() * pixels.length);
+  centroids.push([...pixels[firstIndex]]);
+  
+  // Choose the remaining centroids
+  for (let i = 1; i < k; i++) {
+    // Calculate the squared distance from each point to its nearest centroid
+    const distances = pixels.map(pixel => {
+      const minDist = Math.min(...centroids.map(centroid => 
+        euclideanDistance(pixel, centroid)
+      ));
+      return minDist * minDist; // Square the distance
+    });
+    
+    // Calculate the sum of all distances
+    const sum = distances.reduce((a, b) => a + b, 0);
+    
+    // Choose the next centroid with probability proportional to squared distance
+    let threshold = Math.random() * sum;
+    let j = 0;
+    
+    while (threshold > 0 && j < distances.length) {
+      threshold -= distances[j];
+      j++;
+    }
+    
+    // Add the new centroid
+    centroids.push([...pixels[Math.max(0, j - 1)]]);
+  }
+  
+  return centroids;
 }
 
 /**

@@ -5,6 +5,7 @@
  */
 export async function separateInside(canvas, options) {
   const {
+    colorThreshold = 32,
     threshold = 0.4,
   } = options;
   
@@ -57,6 +58,17 @@ export async function separateInside(canvas, options) {
   // Apply the transformation to the entire image
   for (let i = 0; i < data.length; i += 4) {
     const pixelColor = `${data[i]},${data[i + 1]},${data[i + 2]}`;
+
+    // check if the pixel color is within colorThreshold of any outside color
+    let isOutside = outsideColors.some(outsideColor => {
+      const [r, g, b] = outsideColor.split(',').map(Number);
+      if (Math.abs(data[i] - r) <= colorThreshold &&
+          Math.abs(data[i + 1] - g) <= colorThreshold &&
+          Math.abs(data[i + 2] - b) <= colorThreshold) {
+        return true;
+      }
+      return false;
+    });
     
     if (outsideColors.has(pixelColor)) {
       // Set pixels that match the outside color to black

@@ -52,6 +52,17 @@ export function identifyWalls(canvas, grid, options = {}) {
 
 export function drawWalls(canvas, walls) {
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.globalCompositeOperation = 'difference';
+  ctx.strokeStyle = 'grey';
+  ctx.lineWidth = 4;
+  for (const wall of walls) {
+    const [x1, y1, x2, y2] = wall;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+  ctx.globalCompositeOperation = 'normal';
   ctx.strokeStyle = 'white';
   ctx.lineWidth = 2;
   for (const wall of walls) {

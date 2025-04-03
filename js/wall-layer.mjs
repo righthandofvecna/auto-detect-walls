@@ -32,7 +32,8 @@ export async function sceneToWalls(scene, options = {}) {
   const {
     canvas = null,
     internalWalls = false,
-    k = 5,
+    k = 10,
+    colorThreshold = 32,
     // debug
     nowalls = false,
     edgeDetection = true,
@@ -50,7 +51,7 @@ export async function sceneToWalls(scene, options = {}) {
   const original = ctx.getImageData(0, 0, width, height);
   imp.kMeansImageSegmentation(bkgimgcanvas, { k })
   if (pixelize) {
-    imp.separateInside(bkgimgcanvas, { threshold: 0.4 }); // TODO: threshold should be based on K?
+    imp.separateInside(bkgimgcanvas, { colorThreshold, threshold: 0.4 }); // TODO: threshold should be based on K?
     await imp.applyMedianFilter(bkgimgcanvas, 5);
     imp.pixelizeNearest(bkgimgcanvas, { cellSize });
   }
@@ -157,40 +158,4 @@ export async function combineSceneWalls(scene) {
       flags: { "auto-detect-walls": { auto: true } }
   })));
 
-}
-
-
-export async function SceneToWallsDialog(scene) {
-  // This is just a placeholder
-  const canvas = document.createElement('canvas');
-  canvas.height = 600;
-  canvas.width = 360;
-  const dialogPromise = Dialog.prompt({ content: "<div class='bkgcanvas'></div>", render: (html)=>{$(html).find('.bkgcanvas').append(canvas);}, rejectOnClose: true });
-  const wallsPromise = sceneToWalls(scene, {
-    canvas,
-    internalWalls: false,
-    // debug
-    nowalls: false,
-    edgeDetection: true,
-    pixelize: true,
-  });
-  await dialogPromise;
-  const walls = await wallsPromise;
-  if (!walls) return;
-  // remove other auto-detect walls
-  const autoWalls = scene.walls.filter(w=>w.flags["auto-detect-walls"]?.auto);
-  if (autoWalls.length > 0) await scene.deleteEmbeddedDocuments("Wall", autoWalls.map(w=>w.id));
-  await scene.createEmbeddedDocuments("Wall", walls.map((w)=>({
-      c: w,
-      flags: { "auto-detect-walls": { auto: true } }
-  })));
-}
-
-
-
-export function register() {
-
-  // for testing purposes
-  window.sceneToWalls = sceneToWalls;
-  window.SceneToWallsDialog = SceneToWallsDialog;
 }
