@@ -95,29 +95,54 @@ class AutoWallsApplication extends foundry.applications.api.HandlebarsApplicatio
 
 
 function OnGetSceneControlButtons(controls) {
-  const walls = controls.find(c=>c.name === "walls");
-  walls.tools.push({
-    icon: "fa-solid fa-hat-wizard",
-    name: "auto-detect-walls",
-    title: "Auto Detect Walls",
-    button: true,
-    // toolclip: {
-    //   heading: "Auto Detect Walls",
-    //   items: [],
-    // },
-    onClick: ()=> new AutoWallsApplication(canvas.scene).render(true),
-  });
-  walls.tools.push({
-    icon: "fa-solid fa-gauge-max",
-    name: "minimize-walls",
-    title: "Minimize Walls",
-    button: true,
-    // toolclip: {
-    //   heading: "Minimize Walls",
-    //   items: [],
-    // },
-    onClick: ()=> combineSceneWalls(canvas.scene),
-  });
+  if (foundry.utils.isNewerVersion(game.version, "13")) {
+    controls.walls.tools["auto-detect-walls"] = {
+      icon: "fa-solid fa-hat-wizard",
+      name: "auto-detect-walls",
+      title: "Auto Detect Walls",
+      button: true,
+      // toolclip: {
+      //   heading: "Auto Detect Walls",
+      //   items: [],
+      // },
+      onClick: ()=> new AutoWallsApplication(canvas.scene).render(true),
+    }
+    controls.walls.tools["minimize-walls"] = {
+      icon: "fa-solid fa-gauge-max",
+      name: "minimize-walls",
+      title: "Minimize Walls",
+      button: true,
+      // toolclip: {
+      //   heading: "Minimize Walls",
+      //   items: [],
+      // },
+      onClick: ()=> combineSceneWalls(canvas.scene),
+    }
+  } else {
+    const walls = controls.find(c=>c.name === "walls");
+    walls.tools.push({
+      icon: "fa-solid fa-hat-wizard",
+      name: "auto-detect-walls",
+      title: "Auto Detect Walls",
+      button: true,
+      // toolclip: {
+      //   heading: "Auto Detect Walls",
+      //   items: [],
+      // },
+      onClick: ()=> new AutoWallsApplication(canvas.scene).render(true),
+    });
+    walls.tools.push({
+      icon: "fa-solid fa-gauge-max",
+      name: "minimize-walls",
+      title: "Minimize Walls",
+      button: true,
+      // toolclip: {
+      //   heading: "Minimize Walls",
+      //   items: [],
+      // },
+      onClick: ()=> combineSceneWalls(canvas.scene),
+    });
+  }
 }
 
 export function register() {
